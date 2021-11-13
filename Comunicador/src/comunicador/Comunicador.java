@@ -32,7 +32,7 @@ public class Comunicador extends Thread {
     public Comunicador(String nomeComunicador, String nomeUsuario) {
         // Verificando se as séries já foram inicializadas
         BdAvaliacoes.inicializarSeries();
-        
+
         // Nome do usuário
         this.nomeUsuario = nomeUsuario;
 
@@ -110,7 +110,7 @@ public class Comunicador extends Thread {
 
                     // Recebendo avaliação
                     avaliacao = recebe();
-                    
+
                     BdAvaliacoes.avaliarSerie(avaliacao.getSerie(), avaliacao.getUsuario());
                 }
                 System.out.println("Gostaria de recomendar uma série ou encerrar a sessão? [0] NAO - [1] SIM - [2] ENCERRAR");
@@ -128,16 +128,15 @@ public class Comunicador extends Thread {
                         // Recebendo avaliação
                         avaliacao = recebe();
                         BdAvaliacoes.avaliarSerie(avaliacao.getSerie(), avaliacao.getUsuario());
-                        break;  
+                        break;
                 }
-                
-                for (Entry<String, List<Usuario>> serie : BdAvaliacoes.seriesAvaliadas.entrySet()) {
-                    System.out.println(serie);
-                }
-                Thread.sleep(10000); // espera 10 segundos
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        System.out.println("Series:");
+        for (Entry<String, List<Usuario>> serie : BdAvaliacoes.seriesAvaliadas.entrySet()) {
+            System.out.println(serie);
         }
     }
 }
