@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 public class Usuario implements Serializable{
     private String nome;
+    private int notaSerie;
     
     public Usuario() {
     }
@@ -21,4 +22,13 @@ public class Usuario implements Serializable{
     public void setNome(String nome) {
         this.nome = nome;
     }
+
+    public int getNotaSerie() {
+        return notaSerie;
+    }
+
+    public void setNotaSerie(int notaSerie) {
+        this.notaSerie = notaSerie;
+    }
+    
 }

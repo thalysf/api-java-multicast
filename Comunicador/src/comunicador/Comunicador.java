@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Scanner;
 
 
 public class Comunicador extends Thread {
@@ -20,9 +21,21 @@ public class Comunicador extends Thread {
     private static ObjectInputStream entrada = null;
     private final int tamanho = 1024 * 4; // tamananho máximo do objeto
 
-    public Comunicador(String nome) {
-        System.out.println("Iniciando comunicador " + nome);
-        this.nome = nome;
+    // Para realizar comunicação via prompt
+    private Scanner scan = new Scanner(System.in);
+    
+    
+    // Usuário avaliador
+    private Usuario usuario = new Usuario();
+    
+    public Comunicador(String nomeComunicador, String nomeUsuario) {
+        // Nome do usuário
+        this.usuario.setNome(nomeUsuario);
+        
+        
+        // Nome do comunicador
+        System.out.println("Iniciando comunicador " + nomeComunicador);
+        this.nome = nomeComunicador;
         try {
             porta = 52684;
             enderecoGrupo = InetAddress.getByName(multiCastAdress);
@@ -85,18 +98,18 @@ public class Comunicador extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        while (contador < 3) {
+        while (true) {
             try {
-                switch(contador)
-                {
-                    case 0: usuario = new Usuario("Joao"); break;
-                    case 1: usuario = new Usuario("Ana"); break;
-                    case 2: usuario = new Usuario("Eduarda"); break;
-                }
+                // instancia avaliação usuario
+                
+                scan
+                
+                
                 if(usuario != null)
                 {
                      System.out.println(this.nome + " - Enviando usuário: " + usuario.getNome());
                 }
+                
                 
                 // Enviando dados para o grupo:
                 envia(usuario);
@@ -104,7 +117,7 @@ public class Comunicador extends Thread {
                 
                 usuario = recebe();
                 
-                System.out.println(this.nome + " - Usuário recebido: " + usuario.getNome());
+                // registra avaliação no bd...
             } catch (Exception e) {
                 e.printStackTrace();
             }
