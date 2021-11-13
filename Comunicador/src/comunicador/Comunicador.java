@@ -7,8 +7,10 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
-
 
 public class Comunicador extends Thread {
 
@@ -23,16 +25,17 @@ public class Comunicador extends Thread {
 
     // Para realizar comunicação via prompt
     private Scanner scan = new Scanner(System.in);
-    
-    
+
     // Usuário avaliador
-    private Usuario usuario = new Usuario();
-    
+    private String nomeUsuario;
+
     public Comunicador(String nomeComunicador, String nomeUsuario) {
+        // Verificando se as séries já foram inicializadas
+        BdAvaliacoes.inicializarSeries();
+        
         // Nome do usuário
-        this.usuario.setNome(nomeUsuario);
-        
-        
+        this.nomeUsuario = nomeUsuario;
+
         // Nome do comunicador
         System.out.println("Iniciando comunicador " + nomeComunicador);
         this.nome = nomeComunicador;
@@ -47,10 +50,10 @@ public class Comunicador extends Thread {
         }
     }
 
-    public Usuario recebe() {
+    public Avaliacao recebe() {
         byte[] buffer = new byte[tamanho];
 
-        Usuario usuario = new Usuario();
+        Avaliacao avaliacao = new Avaliacao();
 
         try {
             // recebe uma solicitação/resposta:
@@ -62,27 +65,24 @@ public class Comunicador extends Thread {
 
             Object objLido = entrada.readObject();
 
-            if (objLido instanceof Usuario) {
-                usuario = (Usuario) objLido;
-                System.out.println(this.nome + " - Usuário lido  " + usuario.getNome());
+            if (objLido instanceof Avaliacao) {
+                avaliacao = (Avaliacao) objLido;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return usuario;
+        return avaliacao;
     }
 
-    public void envia(Usuario usuario) {
+    public void envia(Avaliacao avaliacao) {
         try {
             ByteArrayOutputStream byteArraySaida = new ByteArrayOutputStream();
             saida = new ObjectOutputStream(byteArraySaida);
 
-            saida.writeObject(usuario);
+            saida.writeObject(avaliacao);
             ////
             byte[] data = byteArraySaida.toByteArray();
             soc.send(new DatagramPacket(data, data.length, enderecoGrupo, porta));
-            
-            System.out.println(this.nome + " - Usuário enviado  " + usuario.getNome());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -90,38 +90,54 @@ public class Comunicador extends Thread {
 
     @Override
     public void run() {
-        int contador = 0;
-        Usuario usuario = null;
-
         try {
-            Thread.sleep(5000); // espera 5 segundos
+            Thread.sleep(2000); // espera 2 segundos
         } catch (Exception e) {
             e.printStackTrace();
         }
-        while (true) {
+        int op = -1;
+        while (op != 2) {
             try {
-                // instancia avaliação usuario
-                
-                scan
-                
-                
-                if(usuario != null)
-                {
-                     System.out.println(this.nome + " - Enviando usuário: " + usuario.getNome());
+                for (Entry<String, List<Usuario>> serie : BdAvaliacoes.seriesAvaliadas.entrySet()) {
+                    System.out.println("Nota da série " + serie.getKey() + ": ");
+                    int nota = scan.nextInt();
+                    Usuario usuarioAvaliacao = new Usuario(this.nomeUsuario, nota);
+                    Avaliacao avaliacao = new Avaliacao(usuarioAvaliacao, serie.getKey(), nota);
+                    // Enviando avaliação
+                    envia(avaliacao);
+
+                    Thread.sleep(1000); // espera 1 segundo
+
+                    // Recebendo avaliação
+                    avaliacao = recebe();
+                    
+                    BdAvaliacoes.avaliarSerie(avaliacao.getSerie(), avaliacao.getUsuario());
+                }
+                System.out.println("Gostaria de recomendar uma série ou encerrar a sessão? [0] NAO - [1] SIM - [2] ENCERRAR");
+                op = scan.nextInt();
+                switch (op) {
+                    case 0:
+                        break;
+                    case 1:
+                        System.out.print("Nome da recomendação: ");
+                        String serie = scan.next();
+                        Usuario usuarioAvaliacao = new Usuario(this.nomeUsuario, 0);
+                        Avaliacao avaliacao = new Avaliacao(usuarioAvaliacao, serie, 0);
+                        // Enviando avaliação
+                        envia(avaliacao);
+                        // Recebendo avaliação
+                        avaliacao = recebe();
+                        BdAvaliacoes.avaliarSerie(avaliacao.getSerie(), avaliacao.getUsuario());
+                        break;  
                 }
                 
-                
-                // Enviando dados para o grupo:
-                envia(usuario);
-               // Thread.sleep(1000); // espera 1 segundo
-                
-                usuario = recebe();
-                
-                // registra avaliação no bd...
+                for (Entry<String, List<Usuario>> serie : BdAvaliacoes.seriesAvaliadas.entrySet()) {
+                    System.out.println(serie);
+                }
+                Thread.sleep(10000); // espera 10 segundos
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            contador++;
         }
     }
 }

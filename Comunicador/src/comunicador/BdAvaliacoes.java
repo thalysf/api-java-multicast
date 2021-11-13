@@ -1,41 +1,39 @@
 package comunicador;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BdAvaliacoes {
-    private static List<Usuario> avaliacoesUsuario = new ArrayList<>();
+    private List<Usuario> avaliacoesUsuario = new ArrayList<>();
 
-    public static Map<String, List<Usuario>> seriesAvaliadas() {
-        Map<String, List<Usuario>> series = new HashMap<>();
-        series.put("Arcane", avaliacoesUsuario);
-        series.put("Peaky Blinders", avaliacoesUsuario);
-        series.put("Suits", avaliacoesUsuario);
-        series.put("Chuck", avaliacoesUsuario);
-        series.put("Elite", avaliacoesUsuario);
-        series.put("3%", avaliacoesUsuario);
-        series.put("B99", avaliacoesUsuario);
-        series.put("Outer Banks", avaliacoesUsuario);
-        series.put("You", avaliacoesUsuario);
-        series.put("Dark", avaliacoesUsuario);
-        return series;
-    }
+    public static Map<String, List<Usuario>> seriesAvaliadas = new HashMap<>();
 
     public BdAvaliacoes() {
-
+        
     }
 
     public static void avaliarSerie(String serie, Usuario usuario) {
-        List<Usuario> avaliacoesUsuario = BdAvaliacoes.seriesAvaliadas().get(serie);
+        List<Usuario> avaliacoesUsuario = BdAvaliacoes.seriesAvaliadas.get(serie);
         if (avaliacoesUsuario == null) {
-            avaliacoesUsuario = new ArrayList<>(Arrays.asList(usuario));
+            avaliacoesUsuario = new ArrayList<>();
         }
-        avaliacoesUsuario.add(usuario);
+        if (avaliacoesUsuario.contains(usuario)) {
+            System.out.println("usuario já avaliou essa série!");
+        } else {
+            avaliacoesUsuario.add(usuario);
+            BdAvaliacoes.seriesAvaliadas.put(serie, avaliacoesUsuario);
+        }
 
-        BdAvaliacoes.seriesAvaliadas().put(serie, avaliacoesUsuario);
+    }
+    
+    public static void inicializarSeries()
+    {
+        if (seriesAvaliadas.size() == 0) {
+            seriesAvaliadas.put("Arcane", new ArrayList<>());
+            seriesAvaliadas.put("Peaky Blinders", new ArrayList<>());
+            seriesAvaliadas.put("Suits", new ArrayList<>());
+        }
     }
 }
