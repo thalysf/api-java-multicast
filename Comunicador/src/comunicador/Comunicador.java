@@ -1,5 +1,7 @@
 package comunicador;
 
+import Model.Avaliacao;
+import Model.Usuario;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -10,7 +12,9 @@ import java.net.MulticastSocket;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Scanner;
+import util.RandomString;
 
 public class Comunicador extends Thread {
 
@@ -28,7 +32,12 @@ public class Comunicador extends Thread {
 
     // Usuário avaliador
     private String nomeUsuario;
+    // Gerador de numeros aleatorios
+    private Random rand = new Random();
 
+    // Gerador de strings aleatorias
+    private RandomString randomString;
+    
     public Comunicador(String nomeComunicador, String nomeUsuario) {
         // Verificando se as séries já foram inicializadas
         BdAvaliacoes.inicializarSeries();
@@ -95,48 +104,44 @@ public class Comunicador extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        int op = -1;
-        while (op != 2) {
+        while (true) {
             try {
-                for (Entry<String, List<Usuario>> serie : BdAvaliacoes.seriesAvaliadas.entrySet()) {
-                    System.out.println("Nota da série " + serie.getKey() + ": ");
-                    int nota = scan.nextInt();
+                for (String serie : BdAvaliacoes.series) {
+                    int notaGerada = rand.nextInt(4);
+                    //System.out.println("[Robozinho de notas =:-| ] Nota da série " + serie + ": " + notaGerada);
+                    int nota = notaGerada;
                     Usuario usuarioAvaliacao = new Usuario(this.nomeUsuario, nota);
-                    Avaliacao avaliacao = new Avaliacao(usuarioAvaliacao, serie.getKey(), nota);
+                    Avaliacao avaliacao = new Avaliacao(usuarioAvaliacao, serie, nota);
                     // Enviando avaliação
                     envia(avaliacao);
-
                     Thread.sleep(1000); // espera 1 segundo
-
                     // Recebendo avaliação
                     avaliacao = recebe();
-
-                    BdAvaliacoes.avaliarSerie(avaliacao.getSerie(), avaliacao.getUsuario());
+                    BdAvaliacoes.avaliarSerie(avaliacao);
                 }
-                System.out.println("Gostaria de recomendar uma série ou encerrar a sessão? [0] NAO - [1] SIM - [2] ENCERRAR");
-                op = scan.nextInt();
+                int op = rand.nextInt(2);
+                //System.out.println("[Robozinho de recomendação :-| ] Gostaria de recomendar uma série ou encerrar a sessão? [0] NAO - [1] SIM: " + op);
+                
                 switch (op) {
                     case 0:
                         break;
                     case 1:
-                        System.out.print("Nome da recomendação: ");
-                        String serie = scan.next();
+                        String serie = "teste";
+                        //System.out.print("[Robozinho de recomendação :-| ] Nome da recomendação: " + serie);
                         Usuario usuarioAvaliacao = new Usuario(this.nomeUsuario, 0);
                         Avaliacao avaliacao = new Avaliacao(usuarioAvaliacao, serie, 0);
                         // Enviando avaliação
                         envia(avaliacao);
                         // Recebendo avaliação
                         avaliacao = recebe();
-                        BdAvaliacoes.avaliarSerie(avaliacao.getSerie(), avaliacao.getUsuario());
+                        BdAvaliacoes.avaliarSerie(avaliacao);
                         break;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        System.out.println("Series:");
-        for (Entry<String, List<Usuario>> serie : BdAvaliacoes.seriesAvaliadas.entrySet()) {
-            System.out.println(serie);
+//            System.out.println("Avaliações: ");;
+//            BdAvaliacoes.avaliacoes.forEach(System.out::println);
         }
     }
 }
