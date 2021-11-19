@@ -9,6 +9,7 @@ public class Aplicação {
 
 
     public static void main(String[] args) throws InterruptedException {
+       try{
        Comunicador ana = new Comunicador("Ana-Comunicador", "Ana");
        Comunicador claudio = new Comunicador("Claudio-Comunicador", "Claudio");
        Comunicador joao = new Comunicador("Joao-Comunicador", "Joao");
@@ -16,13 +17,17 @@ public class Aplicação {
        
        Ringo ringo = new Ringo();
        ana.start();
-       Thread.sleep(5000);
+       Thread.sleep(10000);
        claudio.start();
-       Thread.sleep(8000);
+       Thread.sleep(10000);
        joao.start();
-       Thread.sleep(2000);
+       Thread.sleep(10000);
        ringo.start();
-       
+       }
+       catch(Exception e)
+       {
+           System.out.println("");
+       }
     }
     
 }

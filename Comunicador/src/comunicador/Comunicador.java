@@ -126,7 +126,7 @@ public class Comunicador extends Thread {
                     case 0:
                         break;
                     case 1:
-                        String serie = "teste";
+                        String serie = "indicacao" + rand.nextInt(1000);
                         //System.out.print("[Robozinho de recomendação :-| ] Nome da recomendação: " + serie);
                         Usuario usuarioAvaliacao = new Usuario(this.nomeUsuario, 0);
                         Avaliacao avaliacao = new Avaliacao(usuarioAvaliacao, serie, 0);
@@ -140,8 +140,8 @@ public class Comunicador extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-//            System.out.println("Avaliações: ");;
-//            BdAvaliacoes.avaliacoes.forEach(System.out::println);
+            //System.out.println("Avaliações: ");;
+            //BdAvaliacoes.avaliacoes.forEach(System.out::println);
         }
     }
 }

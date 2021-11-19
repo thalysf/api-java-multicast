@@ -16,7 +16,7 @@ public class Ringo extends Thread {
 
     List<Usuario> usuariosExistentes;
 
-    public void recomendaParaUsuarios() {
+    public synchronized void recomendaParaUsuarios() {
         usuariosExistentes = recuperaUsuarios();
         for (int i = 0; i < usuariosExistentes.size(); i++) {
             try {
@@ -113,7 +113,7 @@ public class Ringo extends Thread {
             System.out.println("Recomendando séries:");
             while (true) {
                 recomendaParaUsuarios();
-                Thread.sleep(180000); // a cada 3 minutos as recomendações de séries são feitas
+                Thread.sleep(5000); // a cada 3 minutos as recomendações de séries são feitas
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(Ringo.class.getName()).log(Level.SEVERE, null, ex);
